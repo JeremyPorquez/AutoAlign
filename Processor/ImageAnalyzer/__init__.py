@@ -146,6 +146,7 @@ class SmartImage(object):
         if machine == 'pi':
             self.camera = PiCamera()
             self.stream = PiCameraCircularIO(self.camera, seconds=10)
+            self.camera.capture(self.stream, use_video_port=True)
             self.camera.wait_recording(1)
 
             def continuous_capture(signal):
@@ -168,7 +169,7 @@ class SmartImage(object):
                     rval, image_cv = videoCapture.read()
                     self.image = cv2.flip(image_cv, 1)
                     signal.emit()
-                    
+
             args = (self.signal.imageCaptured, self.videoCapture)
 
         pool.apply_async(continuous_capture, args)
