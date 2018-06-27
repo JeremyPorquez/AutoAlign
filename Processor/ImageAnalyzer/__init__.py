@@ -1,12 +1,21 @@
 # Contains image analysis code used to find laser spot and target spot
 # todo : implement machine learning with stochastic gradient descent
 import cv2
+import time
+import os
 import numpy as np
 from multiprocessing.pool import ThreadPool
-import time
+from PIL import Image
+
 from PyQt5 import QtCore, QtWidgets, QtGui
 
-
+if 'arm' in os.uname().machine.lower():
+    machine = 'pi'
+    from picamera import PiCamera
+    from picamera import PiCameraCircularIO
+    from picamera import PiVideoFrameType
+else:
+    machine = 'standard'
 
 class SmartImage(object):
 
@@ -110,7 +119,7 @@ class SmartImage(object):
             self.widget.show()
 
     def process_image(self):
-        image = self.image_cv
+        image = self.image
         mask = None
         filtered_image = None
         if self.apply_filter:
@@ -133,17 +142,35 @@ class SmartImage(object):
     def start_capture(self):
         pool = ThreadPool()
         self.capturing = True
-        self.videoCapture = cv2.VideoCapture(0)
 
-        def continuous_capture(signal,videoCapture):
-            while self.capturing:
-                fps = 10
-                time.sleep(1./fps)
-                rval, image_cv = videoCapture.read()
-                self.image_cv = cv2.flip(image_cv, 1)
-                signal.emit()
+        if machine == 'pi':
+            self.camera = PiCamera()
+            self.stream = PiCameraCircularIO(self.camera, seconds=10)
+            self.camera.wait_recording(1)
 
-        args = (self.signal.imageCaptured, self.videoCapture)
+            def continuous_capture(signal):
+                while self.capturing:
+                    fps = 10
+                    time.sleep(1./fps)
+                    self.image = Image.open(self.stream)
+                    signal.emit()
+
+            args = (self.signal.imageCaptured)
+
+        else:
+
+            self.videoCapture = cv2.VideoCapture(0)
+
+            def continuous_capture(signal,videoCapture):
+                while self.capturing:
+                    fps = 10
+                    time.sleep(1./fps)
+                    rval, image_cv = videoCapture.read()
+                    self.image = cv2.flip(image_cv, 1)
+                    signal.emit()
+                    
+            args = (self.signal.imageCaptured, self.videoCapture)
+
         pool.apply_async(continuous_capture, args)
 
 
