@@ -4,9 +4,7 @@ import cv2, io
 import time
 import os
 import numpy as np
-from threading import Thread
 from multiprocessing.pool import ThreadPool
-from PIL import Image
 from PyQt5 import QtCore, QtWidgets, QtGui
 
 if 'arm' in os.uname().machine.lower():
@@ -36,19 +34,18 @@ class SmartImage(object):
         self.signal = self.Signal()
         self.setup_signals()
         self.capturing = False
-        self.image_cv = None
-        self.image_qt = None
         self.apply_filter = False
         self.calculate_centroid = False
         self.save_centroid_enabled = False
         self.show_mask = False
+        self.image = None
         self.filter_mode = 'rgb'
         self.filter_color = 'red'
         self.start_time = time.time()
 
     def setup_signals(self):
-        self.signal.updateImage.connect(self.update_image)
         self.signal.imageCaptured.connect(self.process_image)
+        self.signal.updateImage.connect(self.update_image)
 
     def filter(self, image, filter_mode=None, filter_color=None):
         if filter_mode is None:
@@ -161,52 +158,6 @@ class SmartImage(object):
             self.save_centroid_enabled = True
         else:
             self.save_centroid_enabled = False
-
-    def start_capture(self):
-        pool = ThreadPool()
-        self.capturing = True
-
-        if machine == 'pi':
-
-            self.camera = PiCamera()
-            self.camera.awb_gains = 1 #between 0 and 8
-            self.camera.awb_mode = 'off'
-            self.camera.exposure_mode = 'off'
-            self.camera.image_denoise = 'off'
-            self.camera.iso = 100
-            self.camera.shutter_speed = 100
-            self.image = np.zeros((480, 640, 3), dtype=np.uint8)
-
-            def continuous_capture(signal):
-                while self.capturing:
-                    fps = 10
-                    time.sleep(1. / fps)
-                    self.camera.capture(self.image, format='bgr',
-                                        resize=(640, 480),
-                                        use_video_port=True) #makes acquisition faster but lower quality
-                    signal.emit()
-                self.camera.close()
-
-            args = (self.signal.imageCaptured,)
-
-        else:
-
-            self.videoCapture = cv2.VideoCapture(0)
-
-            def continuous_capture(signal, videoCapture):
-                while self.capturing:
-                    fps = 10
-                    time.sleep(1. / fps)
-                    rval, image_cv = videoCapture.read()
-                    self.image = cv2.flip(image_cv, 1)
-                    signal.emit()
-
-            args = (self.signal.imageCaptured, self.videoCapture,)
-
-        pool.apply_async(continuous_capture, args)
-        # Thread(target=continuous_capture, args=args).start()
-
-
 
 
 

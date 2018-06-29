@@ -1,12 +1,14 @@
 from Gui import main
 from PyQt5 import QtWidgets
 from Processor import ImageAnalyzer
+from Processor import Camera
 import os
 
 class AutoAlign(object):
 
     def __init__(self):
         self.image = ImageAnalyzer.SmartImage()
+        self.camera = Camera.Camera()
         self.setup_image()
         self.create_ui()
         self.connect_ui()
@@ -57,8 +59,12 @@ class AutoAlign(object):
         self.ui.centroid_y_label.setText(ylabel)
 
     def setup_image(self):
-        # self.image.signal.updateImage.connect(self.update_image)
-        self.image.start_capture()
+        self.camera.signal.imageCaptured.connect(self.process_image)
+        self.camera.start_capture()
+
+    def process_image(self):
+        self.image.image = self.camera.image
+        self.image.process_image()
 
     def update_image(self):
         self.image.widget.setImage(self.image.image)
