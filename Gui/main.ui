@@ -19,6 +19,13 @@
      <layout class="QGridLayout" name="gridLayout" columnstretch="5,1" columnminimumwidth="5,1">
       <item row="0" column="1">
        <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <widget class="QPushButton" name="centerBeam_pushButton">
+          <property name="text">
+           <string>Center Beam</string>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="0">
          <widget class="QPushButton" name="centerBeamSingle_pushButton">
           <property name="text">
@@ -40,23 +47,16 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QPushButton" name="centerBeam_pushButton">
-          <property name="text">
-           <string>Center Beam</string>
-          </property>
-         </widget>
-        </item>
         <item row="4" column="0">
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0" colspan="2">
            <widget class="QCheckBox" name="apply_filter_checkBox">
             <property name="text">
              <string>Apply filter</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="1" column="0" colspan="2">
            <widget class="QComboBox" name="filter_mode_comboBox">
             <item>
              <property name="text">
@@ -90,35 +90,48 @@
             </item>
            </widget>
           </item>
-          <item>
+          <item row="2" column="0" colspan="2">
            <widget class="QCheckBox" name="show_mask_checkBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Show mask</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="3" column="0" colspan="2">
            <widget class="QCheckBox" name="get_centroid_checkBox">
             <property name="text">
              <string>Get centroid</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="4" column="0">
            <widget class="QLabel" name="centroid_x_label">
             <property name="text">
              <string>x : </string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="5" column="0">
            <widget class="QLabel" name="centroid_y_label">
             <property name="text">
              <string>y : </string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="6" column="0" colspan="2">
+           <widget class="QCheckBox" name="save_centroid_checkBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Save centroid locations</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="1">
            <spacer name="verticalSpacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -130,6 +143,23 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item row="7" column="1">
+           <widget class="QLineEdit" name="filename_lineEdit"/>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="filename_label">
+            <property name="text">
+             <string>Filename</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1">
+           <widget class="QPushButton" name="browse_centroidFile_pushButton">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>

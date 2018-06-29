@@ -1,7 +1,7 @@
 from Gui import main
 from PyQt5 import QtWidgets
 from Processor import ImageAnalyzer
-
+import os
 
 class AutoAlign(object):
 
@@ -21,14 +21,16 @@ class AutoAlign(object):
     def connect_ui(self):
         self.ui.apply_filter_checkBox.toggled.connect(self.apply_filter)
         self.ui.get_centroid_checkBox.toggled.connect(self.get_centroid)
+        self.ui.browse_centroidFile_pushButton.clicked.connect(self.get_centroidFileLocation)
+        self.ui.save_centroid_checkBox.toggled.connect(lambda: self.image.save_centroid(self.ui.save_centroid_checkBox.isChecked(), self.centroidFileLocation)) #here save centroid locations to filename
         self.ui.show_mask_checkBox.toggled.connect(self.show_mask)
         self.image.signal.centroidCalculated.connect(self.update_centroid)
         self.ui.filter_mode_comboBox.currentIndexChanged.connect(self.connect_filter_mode)
         self.connect_filter_mode()
 
-
     def apply_filter(self):
         self.image.apply_filter = self.ui.apply_filter_checkBox.isChecked()
+        self.ui.show_mask_checkBox.setEnabled(self.ui.apply_filter_checkBox.isChecked())
 
     def connect_filter_mode(self):
         color, mode = self.ui.filter_mode_comboBox.currentText().split()
@@ -37,13 +39,20 @@ class AutoAlign(object):
 
     def get_centroid(self):
         self.image.calculate_centroid = self.ui.get_centroid_checkBox.isChecked()
+        self.ui.save_centroid_checkBox.setEnabled(self.ui.get_centroid_checkBox.isChecked())
+
+    def get_centroidFileLocation(self):
+        self.centroidFileLocation = QtWidgets.QFileDialog.getSaveFileName(filter="CSV (*.csv)")[0]
+        self.centroidDirLocation = os.path.dirname(self.centroidFileLocation)
+        self.centroidFilename = os.path.basename(self.centroidFileLocation)
+        self.ui.filename_lineEdit.setText(self.centroidFilename)
 
     def show_mask(self):
         self.image.show_mask = self.ui.show_mask_checkBox.isChecked()
 
     def update_centroid(self):
-        xlabel = 'x : {}'.format(self.image.centroid_x)
-        ylabel = 'y : {}'.format(self.image.centroid_y)
+        xlabel = 'x : {:.5}'.format(self.image.centroid_x)
+        ylabel = 'y : {:.5}'.format(self.image.centroid_y)
         self.ui.centroid_x_label.setText(xlabel)
         self.ui.centroid_y_label.setText(ylabel)
 
